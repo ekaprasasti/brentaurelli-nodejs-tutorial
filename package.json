@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ejs": "latest",
     "express": "^4.14.0",
-    "ejs": "latest"
+    "morgan": "^1.7.0"
   }
 }

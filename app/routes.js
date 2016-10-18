@@ -5,6 +5,16 @@ module.exports = function(app, passport) {
 		res.render('index.ejs');
 	});
 
+	app.get('/login', function(req, res) {
+		res.render('login.ejs', {message: req.flash('loginMessage')});
+	});
+
+	app.post('/login', passport.authenticate('local-login', {
+		successRedirect: '/profile',
+		failureRedirect: '/login',
+		failureFlash: true
+	}));
+
 	app.get('/signup', function(req, res){
 		res.render('signup.ejs', {message: req.flash('signupMessage')});
 	});
@@ -14,6 +24,11 @@ module.exports = function(app, passport) {
 		failureRedirect: '/signup',
 		failureFlash: true
 	}));
+
+	// open if login
+	app.get('/profile', isLoggedIn, function(req, res) {
+		res.render('profile.ejs', {user: req.user});
+	})
 
 	app.get('/:username/:password', function(req, res) {
 		var newUser = new User();
@@ -26,4 +41,19 @@ module.exports = function(app, passport) {
 		});
 		res.send('Success!');
 	});
+
+	app.get('/logout', function(req, res){
+		req.logout();
+		res.redirect('/');
+	});
+};
+
+function isLoggedIn(req, res, next) {
+
+	// kalo user login callbakc next(), selain itu kalo ga login redirect ke /login
+	if (req.isAuthenticated()) {
+		return next();
+	}
+
+	res.redirect('/login');
 }

@@ -1,9 +1,19 @@
 var User = require('./models/user');
 
-module.exports = function(app) {
+module.exports = function(app, passport) {
 	app.get('/', function(req, res) {
-		res.send('Hello world')
+		res.render('index.ejs');
 	});
+
+	app.get('/signup', function(req, res){
+		res.render('signup.ejs', {message: req.flash('signupMessage')});
+	});
+
+	app.post('/signup', passport.authenticate('local-signup', {
+		successRedirect: '/',
+		failureRedirect: '/signup',
+		failureFlash: true
+	}));
 
 	app.get('/:username/:password', function(req, res) {
 		var newUser = new User();

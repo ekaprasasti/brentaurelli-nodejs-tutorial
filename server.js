@@ -24,14 +24,23 @@ var morgan = require('morgan');
 */
 var mongoose = require('mongoose');
 
-// load database config file
+// Parse html form data with body parser, available under req.body
+var bodyParser = require('body-parser');
+
+var passport = require('passport');
+var flash = require('connect-flash');
+
+// load config file
 var configDB = require('./config/database.js');
 mongoose.connect(configDB.url);
+require('./config/passport')(passport);
 
 app.use(morgan('dev'));
 app.use(cookieParser());
+app.use(bodyParser.urlencoded({extended: false}));
 
 /*
+	express-session
 	Parameter:
 	- secret: key code yang kita gunakan pada console
 	- saveUninitialized: Ketika kita ingin menyimpan informasi session seperti data dalam database maka kita harus pastikan user login (login session)
@@ -43,6 +52,13 @@ app.use(session({
 	resave: true
 }));
 
+app.use(passport.initialize());
+app.use(passport.session()); // session ini harus di bawah express-session
+app.use(flash());
+
+// template engine we are use
+app.set('view engine', 'ejs');
+
 // app.use('/', function(req, res){
 // 	res.send('Our First Express Pragram!');
 // 	console.log(req.cookies);
@@ -51,7 +67,7 @@ app.use(session({
 // });
 
 // memberi tahu server bahwa routes berada di tempat yang terpisah
-require('./app/routes.js')(app);
+require('./app/routes.js')(app, passport);
 
 app.listen(port);
 console.log('Server running on port ' + port);

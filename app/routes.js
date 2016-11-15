@@ -30,17 +30,12 @@ module.exports = function(app, passport) {
 		res.render('profile.ejs', {user: req.user});
 	})
 
-	app.get('/:username/:password', function(req, res) {
-		var newUser = new User();
-		newUser.local.username = req.params.username;
-		newUser.local.password = req.params.password;
-		console.log(newUser.local.username + " " + newUser.local.password);
-		newUser.save(function(err){
-			if (err) 
-				throw err;
-		});
-		res.send('Success!');
-	});
+	
+	app.get('/auth/facebook', passport.authenticate('facebook', {scope: 'email'}));
+
+	app.get('/auth/facebook/callback',
+	  passport.authenticate('facebook', { successRedirect: '/profile',
+	                                      failureRedirect: '/' }));
 
 	app.get('/logout', function(req, res){
 		req.logout();
@@ -50,7 +45,7 @@ module.exports = function(app, passport) {
 
 function isLoggedIn(req, res, next) {
 
-	// kalo user login callbakc next(), selain itu kalo ga login redirect ke /login
+	// kalo user login callback next(), selain itu kalo ga login redirect ke /login
 	if (req.isAuthenticated()) {
 		return next();
 	}
